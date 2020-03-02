@@ -134,20 +134,29 @@ abstract class LaravelController extends Controller
         }
 
         $this->defaults = array_merge([
-            'includes' => [],
-            'sort' => [],
+            'includes' => '[]',
+            'sort' => '[]',
             'limit' => null,
             'page' => null,
             'mode' => 'embed',
-            'filter_groups' => [],
+            'filter_groups' => '[]',
             'start' => null
         ], $this->defaults);
 
-        $includes = $this->parseIncludes($request->get('includes', $this->defaults['includes']));
-        $sort = $this->parseSort($request->get('sort', $this->defaults['sort']));
+        // These are JSON requests that need to be parsed
+        $includes = $this->parseIncludes(
+            json_decode($request->get('includes', $this->defaults['includes']), true)
+        );
+        $sort = $this->parseSort(
+            json_decode($request->get('sort', $this->defaults['sort']), true)
+        );
+        $filter_groups = $this->parseFilterGroups(
+            json_decode($request->get('filter_groups', $this->defaults['filter_groups']), true)
+        );
+
+        // These are just values to be passed on
         $limit = $request->get('limit', $this->defaults['limit']);
         $page = $request->get('page', $this->defaults['page']);
-        $filter_groups = $this->parseFilterGroups($request->get('filter_groups', $this->defaults['filter_groups']));
         $start = $request->get('start', $this->defaults['start']);
 
         if ($page !== null && $limit === null) {
